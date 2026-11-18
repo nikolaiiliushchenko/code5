@@ -3,53 +3,155 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-public class SymmetricCipher
+public static class SecureRandomGenerator
 {
-    // Генерація криптостійкої випадкової послідовності байтів для Key та IV
-    public static byte[] GenerateRandomNumber(int length)
+    public static byte[] GenerateRndBytes(int length)
     {
-        using (var randomNumberGenerator = RandomNumberGenerator.Create())
+        using (var rnd = RandomNumberGenerator.Create())
         {
-            var randomNumber = new byte[length];
-            randomNumberGenerator.GetBytes(randomNumber);
-            return randomNumber;
+            byte[] random = new byte[length];
+            rnd.GetBytes(random);
+            return random;
         }
     }
+}
 
-    // Універсальний метод зашифрування для будь-якого симетричного алгоритму (DES, TripleDES, AES)
-    public static byte[] Encrypt(SymmetricAlgorithm algorithm, byte[] dataToEncrypt, byte[] key, byte[] iv)
+internal class DesCipher
+{
+    public byte[] Encrypt(byte[] dataToEncrypt, byte[] key, byte[] iv)
     {
-        algorithm.Mode = CipherMode.CBC;
-        algorithm.Padding = PaddingMode.PKCS7;
-        algorithm.Key = key;
-        algorithm.IV = iv;
-
-        using (var memoryStream = new MemoryStream())
+        using (DES desAlg = DES.Create())
         {
-            using (var cryptoStream = new CryptoStream(memoryStream, algorithm.CreateEncryptor(), CryptoStreamMode.Write))
+            desAlg.Key = key;
+            desAlg.IV = iv;
+
+            ICryptoTransform encryptor = desAlg.CreateEncryptor(desAlg.Key, desAlg.IV);
+
+            using (MemoryStream msEncrypt = new MemoryStream())
             {
-                cryptoStream.Write(dataToEncrypt, 0, dataToEncrypt.Length);
-                cryptoStream.FlushFinalBlock();
-                return memoryStream.ToArray();
+                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                {
+                    csEncrypt.Write(dataToEncrypt, 0, dataToEncrypt.Length);
+                    csEncrypt.FlushFinalBlock();
+                    return msEncrypt.ToArray();
+                }
             }
         }
     }
 
-    // Універсальний метод розшифрування для будь-якого симетричного алгоритму (DES, TripleDES, AES)
-    public static byte[] Decrypt(SymmetricAlgorithm algorithm, byte[] dataToDecrypt, byte[] key, byte[] iv)
+    public byte[] Decrypt(byte[] dataToDecrypt, byte[] key, byte[] iv)
     {
-        algorithm.Mode = CipherMode.CBC;
-        algorithm.Padding = PaddingMode.PKCS7;
-        algorithm.Key = key;
-        algorithm.IV = iv;
-
-        using (var memoryStream = new MemoryStream())
+        using (DES desAlg = DES.Create())
         {
-            using (var cryptoStream = new CryptoStream(memoryStream, algorithm.CreateDecryptor(), CryptoStreamMode.Write))
+            desAlg.Key = key;
+            desAlg.IV = iv;
+
+            ICryptoTransform decryptor = desAlg.CreateDecryptor(desAlg.Key, desAlg.IV);
+
+            using (MemoryStream msDecrypt = new MemoryStream(dataToDecrypt))
             {
-                cryptoStream.Write(dataToDecrypt, 0, dataToDecrypt.Length);
-                cryptoStream.FlushFinalBlock();
-                return memoryStream.ToArray();
+                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                {
+                    using (MemoryStream msPlain = new MemoryStream())
+                    {
+                        csDecrypt.CopyTo(msPlain);
+                        return msPlain.ToArray();
+                    }
+                }
+            }
+        }
+    }
+}
+
+internal class TripleDesCipher
+{
+    public byte[] Encrypt(byte[] dataToEncrypt, byte[] key, byte[] iv)
+    {
+        using (TripleDES tdesAlg = TripleDES.Create())
+        {
+            tdesAlg.Key = key;
+            tdesAlg.IV = iv;
+
+            ICryptoTransform encryptor = tdesAlg.CreateEncryptor(tdesAlg.Key, tdesAlg.IV);
+
+            using (MemoryStream msEncrypt = new MemoryStream())
+            {
+                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                {
+                    csEncrypt.Write(dataToEncrypt, 0, dataToEncrypt.Length);
+                    csEncrypt.FlushFinalBlock();
+                    return msEncrypt.ToArray();
+                }
+            }
+        }
+    }
+
+    public byte[] Decrypt(byte[] dataToDecrypt, byte[] key, byte[] iv)
+    {
+        using (TripleDES tdesAlg = TripleDES.Create())
+        {
+            tdesAlg.Key = key;
+            tdesAlg.IV = iv;
+
+            ICryptoTransform decryptor = tdesAlg.CreateDecryptor(tdesAlg.Key, tdesAlg.IV);
+
+            using (MemoryStream msDecrypt = new MemoryStream(dataToDecrypt))
+            {
+                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                {
+                    using (MemoryStream msPlain = new MemoryStream())
+                    {
+                        csDecrypt.CopyTo(msPlain);
+                        return msPlain.ToArray();
+                    }
+                }
+            }
+        }
+    }
+}
+
+internal class AesCipher
+{
+    public byte[] Encrypt(byte[] dataToEncrypt, byte[] key, byte[] iv)
+    {
+        using (Aes aesAlg = Aes.Create())
+        {
+            aesAlg.Key = key;
+            aesAlg.IV = iv;
+
+            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+            using (MemoryStream msEncrypt = new MemoryStream())
+            {
+                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                {
+                    csEncrypt.Write(dataToEncrypt, 0, dataToEncrypt.Length);
+                    csEncrypt.FlushFinalBlock();
+                    return msEncrypt.ToArray();
+                }
+            }
+        }
+    }
+
+    public byte[] Decrypt(byte[] dataToDecrypt, byte[] key, byte[] iv)
+    {
+        using (Aes aesAlg = Aes.Create())
+        {
+            aesAlg.Key = key;
+            aesAlg.IV = iv;
+
+            ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+            using (MemoryStream msDecrypt = new MemoryStream(dataToDecrypt))
+            {
+                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                {
+                    using (MemoryStream msPlain = new MemoryStream())
+                    {
+                        csDecrypt.CopyTo(msPlain);
+                        return msPlain.ToArray();
+                    }
+                }
             }
         }
     }
@@ -57,50 +159,57 @@ public class SymmetricCipher
 
 class Program
 {
-    static void TestAlgorithm(string name, SymmetricAlgorithm algorithm, int keySizeBytes, int ivSizeBytes, string plainText)
-    {
-        byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
-
-        // Випадкова генерація секретного ключа та вектора ініціалізації (IV)
-        byte[] key = SymmetricCipher.GenerateRandomNumber(keySizeBytes);
-        byte[] iv = SymmetricCipher.GenerateRandomNumber(ivSizeBytes);
-
-        // Зашифрування та розшифрування
-        byte[] encryptedBytes = SymmetricCipher.Encrypt(algorithm, plainBytes, key, iv);
-        byte[] decryptedBytes = SymmetricCipher.Decrypt(algorithm, encryptedBytes, key, iv);
-
-        string decryptedText = Encoding.UTF8.GetString(decryptedBytes);
-
-        Console.WriteLine($"=== Алгоритм: {name} ===");
-        Console.WriteLine($"Оригінальний текст : {plainText}");
-        Console.WriteLine($"Key ({key.Length,2} байт)      : {Convert.ToBase64String(key)}");
-        Console.WriteLine($"IV  ({iv.Length,2} байт)      : {Convert.ToBase64String(iv)}");
-        Console.WriteLine($"Зашифровані дані   : {Convert.ToBase64String(encryptedBytes)}");
-        Console.WriteLine($"Розшифрований текст: {decryptedText}\n");
-    }
-
     static void Main()
     {
         Console.OutputEncoding = Encoding.UTF8;
+        const string original = "Конфіденційні дані для шифрування (Варіант 15)";
+        byte[] originalBytes = Encoding.UTF8.GetBytes(original);
 
-        const string originalMessage = "Symmetric encryption test: DES, Triple-DES and AES (Variant 15)";
+        // 1. DES (ключ = 8 байтів, вектор ініціалізації IV = 8 байтів)
+        var desCipher = new DesCipher();
+        byte[] desKey = SecureRandomGenerator.GenerateRndBytes(8);
+        byte[] desIv = SecureRandomGenerator.GenerateRndBytes(8);
 
-        // 1. DES: ключ = 8 байтів (64 біти), IV = 8 байтів (64 біти)
-        using (var des = DES.Create())
-        {
-            TestAlgorithm("DES", des, 8, 8, originalMessage);
-        }
+        byte[] desEncrypted = desCipher.Encrypt(originalBytes, desKey, desIv);
+        byte[] desDecrypted = desCipher.Decrypt(desEncrypted, desKey, desIv);
 
-        // 2. Triple-DES: ключ = 24 байти (192 біти), IV = 8 байтів (64 біти)
-        using (var tripleDes = TripleDES.Create())
-        {
-            TestAlgorithm("Triple-DES", tripleDes, 24, 8, originalMessage);
-        }
+        Console.WriteLine("=== 1. Алгоритм DES (випадкові Key та IV) ===");
+        Console.WriteLine("Вихідний текст     : " + original);
+        Console.WriteLine("Key (8 байтів)     : " + Convert.ToBase64String(desKey));
+        Console.WriteLine("IV  (8 байтів)     : " + Convert.ToBase64String(desIv));
+        Console.WriteLine("Зашифрований текст : " + Convert.ToBase64String(desEncrypted));
+        Console.WriteLine("Розшифрований текст: " + Encoding.UTF8.GetString(desDecrypted));
+        Console.WriteLine();
 
-        // 3. AES: ключ = 32 байти (256 бітів), IV = 16 байтів (128 бітів)
-        using (var aes = Aes.Create())
-        {
-            TestAlgorithm("AES-256", aes, 32, 16, originalMessage);
-        }
+        // 2. Triple-DES (ключ = 24 байти, вектор ініціалізації IV = 8 байтів)
+        var tdesCipher = new TripleDesCipher();
+        byte[] tdesKey = SecureRandomGenerator.GenerateRndBytes(24);
+        byte[] tdesIv = SecureRandomGenerator.GenerateRndBytes(8);
+
+        byte[] tdesEncrypted = tdesCipher.Encrypt(originalBytes, tdesKey, tdesIv);
+        byte[] tdesDecrypted = tdesCipher.Decrypt(tdesEncrypted, tdesKey, tdesIv);
+
+        Console.WriteLine("=== 2. Алгоритм Triple-DES (випадкові Key та IV) ===");
+        Console.WriteLine("Вихідний текст     : " + original);
+        Console.WriteLine("Key (24 байти)     : " + Convert.ToBase64String(tdesKey));
+        Console.WriteLine("IV  (8 байтів)     : " + Convert.ToBase64String(tdesIv));
+        Console.WriteLine("Зашифрований текст : " + Convert.ToBase64String(tdesEncrypted));
+        Console.WriteLine("Розшифрований текст: " + Encoding.UTF8.GetString(tdesDecrypted));
+        Console.WriteLine();
+
+        // 3. AES (ключ = 32 байти, вектор ініціалізації IV = 16 байтів)
+        var aesCipher = new AesCipher();
+        byte[] aesKey = SecureRandomGenerator.GenerateRndBytes(32);
+        byte[] aesIv = SecureRandomGenerator.GenerateRndBytes(16);
+
+        byte[] aesEncrypted = aesCipher.Encrypt(originalBytes, aesKey, aesIv);
+        byte[] aesDecrypted = aesCipher.Decrypt(aesEncrypted, aesKey, aesIv);
+
+        Console.WriteLine("=== 3. Алгоритм AES-256 (випадкові Key та IV) ===");
+        Console.WriteLine("Вихідний текст     : " + original);
+        Console.WriteLine("Key (32 байти)     : " + Convert.ToBase64String(aesKey));
+        Console.WriteLine("IV  (16 байтів)    : " + Convert.ToBase64String(aesIv));
+        Console.WriteLine("Зашифрований текст : " + Convert.ToBase64String(aesEncrypted));
+        Console.WriteLine("Розшифрований текст: " + Encoding.UTF8.GetString(aesDecrypted));
     }
 }
