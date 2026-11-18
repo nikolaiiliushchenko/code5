@@ -1,0 +1,14 @@
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\bin\Debug\net8.0\Task1_RandomKey.exe
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\bin\Debug\net8.0\Task1_RandomKey.deps.json
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\bin\Debug\net8.0\Task1_RandomKey.runtimeconfig.json
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\bin\Debug\net8.0\Task1_RandomKey.dll
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\bin\Debug\net8.0\Task1_RandomKey.pdb
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\obj\Debug\net8.0\Task1_RandomKey.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\obj\Debug\net8.0\Task1_RandomKey.AssemblyInfoInputs.cache
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\obj\Debug\net8.0\Task1_RandomKey.AssemblyInfo.cs
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\obj\Debug\net8.0\Task1_RandomKey.csproj.CoreCompileInputs.cache
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\obj\Debug\net8.0\Task1_RandomKey.dll
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\obj\Debug\net8.0\refint\Task1_RandomKey.dll
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\obj\Debug\net8.0\Task1_RandomKey.pdb
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\obj\Debug\net8.0\Task1_RandomKey.genruntimeconfig.cache
+C:\Users\mboss\OneDrive\Рабочий стол\code6-7\Task1_RandomKey\obj\Debug\net8.0\ref\Task1_RandomKey.dll
